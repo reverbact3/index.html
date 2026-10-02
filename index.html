@@ -1,1 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Grocery Ledger — Capstone Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --paper: #F3F2ED;
+    --paper-raised: #EAE8DF;
+    --ink: #191B17;
+    --ink-soft: #55584E;
+    --green: #204632;
+    --green-soft: #2E5F44;
+    --gold: #A9791F;
+    --brick: #9C4230;
+    --rule: rgba(25,27,23,0.16);
+    --shadow: rgba(25,27,23,0.10);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #14150F;
+      --paper-raised: #1C1E16;
+      --ink: #ECE9DE;
+      --ink-soft: #A7A597;
+      --green: #7FBF97;
+      --green-soft: #5C9E76;
+      --gold: #D9AE4E;
+      --brick: #D97A63;
+      --rule: rgba(236,233,222,0.18);
+      --shadow: rgba(0,0,0,0.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #14150F;
+    --paper-raised: #1C1E16;
+    --ink: #ECE9DE;
+    --ink-soft: #A7A597;
+    --green: #7FBF97;
+    --green-soft: #5C9E76;
+    --gold: #D9AE4E;
+    --brick: #D97A63;
+    --rule: rgba(236,233,222,0.18);
+    --shadow: rgba(0,0,0,0.4);
+  }
+
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a { color: var(--green-soft); }
+
+  /* ---------- Nav ---------- */
+
+  header.site {
+    position: sticky;
+    top: 0;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+
+  .brand span { color: var(--green-soft); }
+
+  nav.links {
+    display: flex;
+    gap: 20px;
+    font-size: 0.92rem;
+  }
+
+  nav.links a {
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+  nav.links a:hover { color: var(--ink); }
+
+  @media (max-width: 520px) {
+    nav.links { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    padding: 64px 0 40px;
+  }
+
+  .hero .kicker {
+    color: var(--brick);
+    font-size: 0.95rem;
+    margin: 0 0 14px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.1rem, 6vw, 3.2rem);
+    max-width: 15ch;
+  }
+
+  .hero p.lede {
+    margin-top: 20px;
+    max-width: 46ch;
+    color: var(--ink-soft);
+    font-size: 1.08rem;
+  }
+
+  /* ---------- Receipt ---------- */
+
+  .receipt {
+    margin-top: 40px;
+    background: var(--paper-raised);
+    border-radius: 3px;
+    padding: 28px 26px 22px;
+    box-shadow: 0 18px 40px -20px var(--shadow);
+    position: relative;
+  }
+
+  .receipt::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: -1px;
+    height: 8px;
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--paper) 0 6px,
+      transparent 6px 12px
+    );
+    -webkit-mask: linear-gradient(#000,#000);
+  }
+
+  .receipt-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px dashed var(--rule);
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .receipt-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 9px 0;
+    border-bottom: 1px dotted var(--rule);
+  }
+
+  .receipt-item .name { flex-shrink: 0; }
+  .receipt-item .fill {
+    flex: 1;
+    border-bottom: 1px dotted transparent;
+  }
+  .receipt-item .store {
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    margin-right: 10px;
+  }
+  .receipt-item .was {
+    color: var(--ink-soft);
+    text-decoration: line-through;
+    margin-right: 8px;
+    font-size: 0.92rem;
+  }
+  .receipt-item .now {
+    color: var(--green-soft);
+    font-weight: 500;
+  }
+
+  .receipt-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 14px;
+    margin-top: 6px;
+    border-top: 1px solid var(--ink);
+    font-family: 'Fraunces', serif;
+    font-size: 1.15rem;
+  }
+
+  .receipt-total .save { color: var(--green-soft); font-size: 0.88rem; font-family: 'IBM Plex Sans', sans-serif; margin-top: 4px; }
+
+  /* ---------- Section scaffolding ---------- */
+
+  section {
+    padding: 56px 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .section-label {
+    font-size: 0.85rem;
+    color: var(--brick);
+    margin: 0 0 12px;
+  }
+
+  section h2 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    max-width: 22ch;
+  }
+
+  section > .wrap > p.intro {
+    margin-top: 16px;
+    max-width: 54ch;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+  }
+
+  /* ---------- Stat grid ---------- */
+
+  .stat-grid {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+
+  .stat {
+    background: var(--paper);
+    padding: 20px 18px;
+  }
+
+  .stat .figure {
+    font-size: 1.9rem;
+    color: var(--green-soft);
+    display: block;
+  }
+
+  .stat .label {
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    margin-top: 6px;
+    display: block;
+  }
+
+  @media (max-width: 560px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- Comparison ---------- */
+
+  .compare {
+    margin-top: 32px;
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--rule);
+  }
+
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .compare-row + .compare-row { border-top: 1px solid var(--rule); }
+
+  .compare-cell {
+    padding: 16px 18px;
+    font-size: 0.95rem;
+  }
+
+  .compare-cell:first-child { border-right: 1px solid var(--rule); color: var(--ink-soft); }
+
+  .compare-row.head .compare-cell {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ---------- Steps ---------- */
+
+  .steps {
+    margin-top: 36px;
+    counter-reset: step;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .step:first-child { border-top: 1px solid var(--rule); }
+
+  .step .n {
+    counter-increment: step;
+    font-family: 'Fraunces', serif;
+    color: var(--gold);
+    font-size: 1.3rem;
+  }
+  .step .n::before { content: counter(step); }
+
+  .step h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .step p { margin: 0; color: var(--ink-soft); font-size: 0.96rem; }
+
+  /* ---------- Roadmap ledger ---------- */
+
+  .ledger {
+    margin-top: 32px;
+    border: 1px solid var(--rule);
+  }
+
+  .ledger-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ledger-row:last-child { border-bottom: none; }
+
+  .ledger-tier {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--gold);
+    padding-top: 3px;
+    width: 74px;
+    flex-shrink: 0;
+  }
+
+  .ledger-row h3 { font-size: 1rem; margin-bottom: 4px; }
+  .ledger-row p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+
+  /* ---------- Team ---------- */
+
+  .team {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+  }
+
+  @media (max-width: 560px) {
+    .team { grid-template-columns: 1fr; }
+  }
+
+  .member {
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .member h3 {
+    font-size: 1.02rem;
+    font-weight: 500;
+  }
+
+  .member .role {
+    color: var(--brick);
+    font-size: 0.86rem;
+    margin-top: 3px;
+  }
+
+  .member p {
+    margin: 8px 0 0;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+
+  /* ---------- Closing ---------- */
+
+  .closing {
+    padding: 64px 0 80px;
+  }
+
+  .closing blockquote {
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.3rem, 4vw, 1.7rem);
+    line-height: 1.35;
+    max-width: 34ch;
+  }
+
+  .closing .attr {
+    margin-top: 20px;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 24px 0 calc(24px + env(safe-area-inset-bottom, 0px));
+    color: var(--ink-soft);
+    font-size: 0.84rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav-row">
+    <div class="brand">The Grocery <span>Ledger</span></div>
+    <nav class="links">
+      <a href="#problem">The problem</a>
+      <a href="#solution">The idea</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#team">Team</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero" style="border-top:none;">
+    <div class="wrap">
+      <p class="kicker">A capstone project</p>
+      <h1>Every store prices the same groceries differently. We're keeping track so you don't have to.</h1>
+      <p class="lede">We're building a price aggregator and meal planner that compares groceries across stores and helps put together meals that fit a budget — starting in Bridgeport, Connecticut.</p>
+
+      <div class="receipt">
+        <div class="receipt-head">
+          <span>sample basket</span>
+          <span>4 items</span>
+        </div>
+        <div class="receipt-item">
+          <span class="name">Eggs, dozen</span>
+          <span class="fill"></span>
+          <span class="store">Stop &amp; Shop</span>
+          <span class="was num">$4.79</span>
+          <span class="now num">$3.19</span>
+        </div>
+        <div class="receipt-item">
+          <span class="name">Rice, 5 lb</span>
+          <span class="fill"></span>
+          <span class="store">ShopRite</span>
+          <span class="was num">$7.49</span>
+          <span class="now num">$5.99</span>
+        </div>
+        <div class="receipt-item">
+          <span class="name">Chicken thighs</span>
+          <span class="fill"></span>
+          <span class="store">Aldi</span>
+          <span class="was num">$9.98</span>
+          <span class="now num">$6.49</span>
+        </div>
+        <div class="receipt-item">
+          <span class="name">Frozen vegetables</span>
+          <span class="fill"></span>
+          <span class="store">ShopRite</span>
+          <span class="was num">$3.29</span>
+          <span class="now num">$2.29</span>
+        </div>
+        <div class="receipt-total">
+          <span>Optimized total</span>
+          <span class="num">$17.96</span>
+        </div>
+        <div class="save">$7.60 less than shopping the four items at one store — illustrative, not live data.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problem">
+    <div class="wrap">
+      <p class="section-label">The problem</p>
+      <h2>Food insecurity isn't rare, and it isn't shrinking</h2>
+      <p class="intro">In the United States, a meaningful share of households already go without reliable access to enough food. Around the world, the number is far larger. Neither figure is trending down.</p>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <span class="figure num">13%</span>
+          <span class="label">of U.S. households experienced food insecurity — about 18.3 million people</span>
+        </div>
+        <div class="stat">
+          <span class="figure num">5.4%</span>
+          <span class="label">of households had very low food security — roughly 7.2 million people</span>
+        </div>
+        <div class="stat">
+          <span class="figure num">828M</span>
+          <span class="label">people worldwide experience undernourishment — about one in ten</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="solution">
+    <div class="wrap">
+      <p class="section-label">The idea</p>
+      <h2>A grocery-price aggregator, paired with a meal planner</h2>
+      <p class="intro">Most stores don't publish prices in any easy-to-compare way, and nobody has time to check five apps before deciding what to cook. So we're building both halves: the data, and the interface that makes it useful.</p>
+
+      <div class="compare">
+        <div class="compare-row head">
+          <div class="compare-cell">gofer.run</div>
+          <div class="compare-cell">This project</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell">Built for the Canadian market</div>
+          <div class="compare-cell">Built for U.S. shoppers, starting in Connecticut</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell">App only, no website</div>
+          <div class="compare-cell">Website and app, so anyone can just look it up</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell">No public documentation of how it works</div>
+          <div class="compare-cell">Prices pulled across at least five regional stores</div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <span class="n"></span>
+          <div>
+            <h3>Gather prices</h3>
+            <p>We pull current prices and product data from at least five grocery stores in the area.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n"></span>
+          <div>
+            <h3>Compare and optimize</h3>
+            <p>We match the same items across stores and work out the cheapest combination for a given list or diet.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n"></span>
+          <div>
+            <h3>Plan the meals</h3>
+            <p>The interface turns that comparison into an actual shopping list and meal plan, not just a spreadsheet.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="n"></span>
+          <div>
+            <h3>Shop, and save</h3>
+            <p>You walk in already knowing where each item is cheapest — or shop one trip, priced honestly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <div class="wrap">
+      <p class="section-label">Roadmap</p>
+      <h2>We're scoping this in order, not all at once</h2>
+      <p class="intro">Core functionality first, extra features once that's solid, polish after that. It keeps the project manageable inside a capstone timeline.</p>
+
+      <div class="ledger">
+        <div class="ledger-row">
+          <span class="ledger-tier">PHASE 1</span>
+          <div>
+            <h3>Working aggregator + usable interface</h3>
+            <p>Price data from five-plus stores, and a search/meal-planning screen simple enough to actually use.</p>
+          </div>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-tier">PHASE 2</span>
+          <div>
+            <h3>Additional features</h3>
+            <p>Broader store coverage, better meal suggestions, saved lists.</p>
+          </div>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-tier">PHASE 3</span>
+          <div>
+            <h3>Quality-of-life polish</h3>
+            <p>The refinements that make it feel finished, once the core is proven.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team">
+    <div class="wrap">
+      <p class="section-label">Team</p>
+      <h2>Four of us, four parts of the problem</h2>
+
+      <div class="team">
+        <div class="member">
+          <h3>Charlie Wermuth</h3>
+          <div class="role">Feasibility &amp; design</div>
+          <p>Scoping the project and shaping the interface.</p>
+        </div>
+        <div class="member">
+          <h3>Alexander Kugler</h3>
+          <div class="role">Research</div>
+          <p>Grounding the project in existing work on diet optimization and food insecurity.</p>
+        </div>
+        <div class="member">
+          <h3>Ryan Guevara</h3>
+          <div class="role">Cost &amp; testing</div>
+          <p>Budgeting the build and evaluating whether it actually works.</p>
+        </div>
+        <div class="member">
+          <h3>Yulia Cabrera Guzman</h3>
+          <div class="role">Presentation</div>
+          <p>Getting the idea across clearly, to reviewers and to shoppers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" style="border-top:none;">
+    <div class="wrap">
+      <blockquote>We can't fix food insecurity outright. But we can make it a little easier for someone to stretch a grocery budget further.</blockquote>
+      <p class="attr">— the goal behind this project</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:8px;">
+    <span>Capstone project, in progress.</span>
+    <span>Round 1 planning stage.</span>
+  </div>
+</footer>
+
+</body>
+</html>
 
